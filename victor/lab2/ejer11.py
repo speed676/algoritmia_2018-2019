@@ -14,6 +14,6 @@ def first(n, iter):
             break
     i+=1
 
-print(list(first(10, range(1, 1000))))
+print(list(first(20, range(50, 200))))
 
 print(list(first(100, [2,4,5,7,2])))
