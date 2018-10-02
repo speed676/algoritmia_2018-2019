@@ -3,16 +3,27 @@
 # devuelva la lista de vértices (camino) que permita ir de
 # una a la otra. Utiliza un recorrido por primero en
 # profundidad.
+# En este tipo de laberintos sólo hay un camino entre
+# cada par de celdas, por lo que la solución es única.
+# Dibuja el laberinto junto con el camino: utiliza el
+# método add_path de la clase LabyrinthViewer
 
 
 
 def path(g, source, target) -> "List<V>":
-    def busca(target):
+
+    def rec_aristas(source, target):
+
+        visitados.append(target)
+        camino.add((source, target))
+        for (u, v) in g:
+            if v==target:
 
         return None
 
-    visitados = []
-    return busca(target)
+    camino = []
+    visitados = set()
+    return rec_aristas(target)
 
 
 # _____main_____
