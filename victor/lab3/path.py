@@ -11,19 +11,29 @@
 
 
 def path(g, source, target) -> "List<V>":
+    def rec_aristas(u, v):
+        visitados.append(v)
+        listaAristas.add((u, v))
+        for suc in g.succs(v):
+            if suc not in visitados:
+                rec_aristas(v, suc)
 
-    def rec_aristas(source, target):
+    listaAristas = []
+    visitados = set()
+    rec_aristas(target)
 
-        visitados.append(target)
-        camino.add((source, target))
-        for (u, v) in g:
-            if v==target:
-
-        return None
+    bp = {}
+    for (u, v) in listaAristas:
+        bp[v] = u
 
     camino = []
-    visitados = set()
-    return rec_aristas(target)
+    camino.append(target)
+
+    while target!=bp[v]:
+        v = bp[v]
+        camino.append(v)
+
+    return camino.reverse()
 
 
 # _____main_____
