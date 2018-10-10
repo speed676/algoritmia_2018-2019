@@ -2,7 +2,7 @@ from algoritmia.datastructures.digraphs import UndirectedGraph
 from algoritmia.datastructures.mergefindsets import MergeFindSet
 from algoritmia.datastructures.queues import Fifo
 from random import shuffle
-from victor.lab3.aux.labyrinthviewer import LabyrinthViewer
+from victor.lab3._aux.labyrinthviewer import LabyrinthViewer
 
 def create_labyrinth(rows, cols, n=0):
     # for i in range(rows):
