@@ -39,8 +39,24 @@ def primero_que_quepa(W: List[int], C: int) -> List[int]:
 
 
 def primero_que_quepa_ordenado(W: List[int], C: int) -> List[int]:
-    return []
 
+    indices_ordenados = sorted(W, key= lambda i: -W[i])
+
+    res = [0]*len(W)
+    espaciosLibres = []
+    for i, peso in enumerate(W):
+        encontrado = False
+        for j, pesoRestante in enumerate(espaciosLibres):
+            if peso <= pesoRestante:
+                res[i] = j
+                espaciosLibres[j] -= peso
+                encontrado = True
+                break
+        if not encontrado:
+            espaciosLibres.append(C-peso)
+            res[i] = len(espaciosLibres)-1
+
+    return res
 
 def prueba_binpacking():
     W: List[int] = [1, 2, 8, 7, 8, 3]
