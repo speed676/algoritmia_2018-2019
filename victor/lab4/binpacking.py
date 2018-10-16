@@ -2,7 +2,21 @@ from typing import *
 
 
 def mientras_quepa(W: List[int], C: int) -> List[int]:
-    return []
+
+    pesoCaja = C
+    res = [0]*len(W)
+    nCaja = 0
+    for i, peso in enumerate(W):
+        if peso <= pesoCaja:
+            res[i] = nCaja
+            pesoCaja -= peso
+        else:
+            pesoCaja = C
+            nCaja+=1
+            res[i] = nCaja
+            pesoCaja -= peso
+
+    return res
 
 
 def primero_que_quepa(W: List[int], C: int) -> List[int]:
@@ -16,6 +30,8 @@ def primero_que_quepa_ordenado(W: List[int], C: int) -> List[int]:
 def prueba_binpacking():
     W: List[int] = [1, 2, 8, 7, 8, 3]
     C: int = 10
+
+    print(W)
 
     for solve in [mientras_quepa, primero_que_quepa, primero_que_quepa_ordenado]:
         sol = solve(W, C)
