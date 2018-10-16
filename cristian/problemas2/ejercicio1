@@ -1,0 +1,59 @@
+from typing import *
+
+
+def mientras_quepa(W: List[int], C: int) -> List[int]:
+    res = []
+    caja=0
+    libre=C
+    for peso in W:
+        if peso<=libre:
+            res.append(caja)
+            libre-=peso
+        else:
+            caja+=1
+            res.append(caja)
+            libre=C-peso
+    return res
+
+
+def primero_que_quepa(W: List[int], C: int) -> List[int]:
+    res = []
+    caja=0
+    libres=[]
+
+    for j, peso in enumerate (W):
+        metido=False
+        for i, lib in enumerate(libres):
+            if peso<=lib:
+                libres[i]-=peso
+                res.append(i)
+                metido=True
+                break
+        if not metido:
+            res.append(caja)
+            caja+=1
+            libres.append(C-peso)
+
+    return res
+
+
+def primero_que_quepa_ordenado(W: List[int], C: int) -> List[int]:
+    return []
+
+
+def prueba_binpacking():
+    W: List[int] = [1, 2, 8, 7, 8, 3]
+    C: int = 10
+
+    for solve in [mientras_quepa, primero_que_quepa, primero_que_quepa_ordenado]:
+        sol = solve(W, C)
+        print("-" * 40)
+        print("Método:", solve.__name__)
+        if len(sol) == 0:
+            print("No implementado")
+        else:
+            print("Solución: {}, usados {} contenedores\n".format(sol, 1 + max(sol)))
+
+
+if __name__ == "__main__":
+    prueba_binpacking()
