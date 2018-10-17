@@ -1,7 +1,7 @@
 import sys
 from algoritmia.datastructures.digraphs import UndirectedGraph
 from algoritmia.datastructures.queues.fifo import Fifo
-from victor.lab3._aux.labyrinthviewer import LabyrinthViewer
+from labyrinthviewer import LabyrinthViewer
 
 def load_labyrinth(fichero):
 
@@ -21,9 +21,9 @@ def load_labyrinth(fichero):
             col += 1
         row += 1
 
-    return UndirectedGraph(E=pasillos)
+    return UndirectedGraph(E=pasillos), pasillos
 
-# MAL, solo si no hay remedio
+
 def rellenar_matrices(laberinto: 'Laberinto', dim: 'Tamaño laberinto') -> 'Matrices desde inicio y desde fin':
 
     #Creo las matrices
@@ -44,46 +44,46 @@ def rellenar_matrices(laberinto: 'Laberinto', dim: 'Tamaño laberinto') -> 'Matr
 
     return matrizDesdeInicio, matrizDesdeFin #Devolvemos las matrices de costes de inicio y de fin
 
-
-def vecino_menor(i, j, mat):
-    vmin = 9999
-
-    if (i - 1 >= 0 and mat[i - 1][j] < vmin and (mat[i][j] - mat[i - 1][j] != 1)):
-        vmin = mat[i - 1][j]
+# Esta función se centra en sobre una posición i j de la matriz dada
+# encontrar cual es el mínimo entre sus adjacentes y su tupla de posicion
+def vecino_menor(i, j, matriz):
+    # minimoEncontrado = matriz[i-1][j]
+    minimoEncontrado = 9999999
+    if (i - 1 >= 0 and matriz[i - 1][j] < minimoEncontrado and (matriz[i][j] - matriz[i - 1][j] != 1)):
+        minimoEncontrado = matriz[i - 1][j]
         (a, b) = i - 1, j
-
-    if (i + 1 < len(mat) and mat[i + 1][j] < vmin and (mat[i][j] - mat[i + 1][j] != 1)):
-        vmin = mat[i + 1][j]
+    if (i + 1 < len(matriz) and matriz[i + 1][j] < minimoEncontrado and (matriz[i][j] - matriz[i + 1][j] != 1)):
+        minimoEncontrado = matriz[i + 1][j]
         (a, b) = i + 1, j
-
-    if (j - 1 >= 0 and mat[i][j - 1] < vmin and (mat[i][j] - mat[i][j - 1] != 1)):
-        vmin = mat[i][j - 1]
+    if (j - 1 >= 0 and matriz[i][j - 1] < minimoEncontrado and (matriz[i][j] - matriz[i][j - 1] != 1)):
+        minimoEncontrado = matriz[i][j - 1]
         (a, b) = i, j - 1
-
-    if (j + 1 < len(mat[0]) and mat[i][j + 1] < vmin and (mat[i][j] - mat[i][j + 1] != 1)):
-        vmin = mat[i][j + 1]
+    if (j + 1 < len(matriz[0]) and matriz[i][j + 1] < minimoEncontrado and (matriz[i][j] - matriz[i][j + 1] != 1)):
+        minimoEncontrado = matriz[i][j + 1]
         (a, b) = i, j + 1
 
-    return vmin, (a, b)
+    return minimoEncontrado, (a, b)
 
-
+# Esta función se centra en encontrar cual es la mejor pared para derribar
+# la mejor pared es aquella donde el valor es más pequeño para la diferencia entre ambas matrices
+# termina devolviendo 3 cosas, la fila/columna de la pared y la distancia correspondiente
 def derriba_mejor_pared(mat_desde_inicio, mat_desde_final):
 
     resultado = [len(mat_desde_final) * len(mat_desde_final[0]) + 1, (0, 0), (0, 0)]
 
     for i in range(len(mat_desde_final)):
         for j in range(len(mat_desde_final[0])):
-            vmin_fin = vecino_menor(i, j, mat_desde_final)
-            minimo_ini = mat_desde_inicio[i][j] + vmin_fin[0] + 1
-            vmin_ini = vecino_menor(i, j, mat_desde_inicio)
-            minimo_final = mat_desde_final[i][j] + vmin_ini[0] + 1
+            valor_minimo_matriz_fin = vecino_menor(i, j, mat_desde_final)
+            minimo_matriz_inicio = mat_desde_inicio[i][j] + valor_minimo_matriz_fin[0] + 1
+            vminvalor_minimo_matriz_inicio = vecino_menor(i, j, mat_desde_inicio)
+            minimo_total = mat_desde_final[i][j] + vminvalor_minimo_matriz_inicio[0] + 1
 
-            if (minimo_ini <= minimo_final):
-                if (minimo_ini < resultado[0]):
-                    resultado = [minimo_ini, (i, j), vmin_fin[1]]
+            if (minimo_matriz_inicio <= minimo_total):
+                if (minimo_matriz_inicio < resultado[0]):
+                    resultado = [minimo_matriz_inicio, (i, j), valor_minimo_matriz_fin[1]]
             else:
-                if (minimo_final < resultado[0]):
-                    resultado = [minimo_final, (i, j), vmin_ini[1]]
+                if (minimo_total < resultado[0]):
+                    resultado = [minimo_total, (i, j), vminvalor_minimo_matriz_inicio[1]]
 
     return resultado
 
@@ -106,17 +106,14 @@ def recorredor_aristas_anchura(grafo: "Graph<T>", v_inicial: "T") -> "List<(T,T)
     return aristas
 
 def recuperador_camino(lista_aristas: "List<(T,T)>", v: "T") -> "List<T>":
-    # Crea un dicionario de punteros hacia atrás (backpointers)
     bp = {}
     for o, d in lista_aristas:
         bp[d] = o
-    # Reconstruye el camino yendo hacia atrás
     camino = []
     camino.append(v)
     while v != bp[v]:
         v = bp[v]
         camino.append(v)
-    # Invierte el camino pues lo hemos obtenido al revés
     camino.reverse()
 
     return camino
@@ -126,33 +123,53 @@ def shortest_path(g, s, t):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 2 or len(sys.argv) < 4:
+    if len(sys.argv) >= 2 or len(sys.argv) < 4:
+        if len(sys.argv) < 2 or len(sys.argv) >= 4:
+            print("Parametros incorrectos")
+            exit(-1)
 
         #Cargamos fichero
-        lab = load_labyrinth(sys.argv[1])
+        lab, vectorPasillos = load_labyrinth(sys.argv[1])
 
         r0, c0 = max(lab.V) #El vertice máximo es la salida
         rows = r0 + 1
         cols = c0 + 1
         dim = (rows, cols)
 
-        mat_ini, mat_fin = rellenar_matrices(lab, dim) #Generamos nuestras matrices de pesos
+        mat_ini, mat_fin = rellenar_matrices(lab, dim) #Generamos nuestras matrices para el calculo de pasos
 
-        caminoSinTirarPared = shortest_path(lab,(0,0),(rows-1,cols-1))
+        caminoSinTirarPared = shortest_path(lab,(0,0),(rows-1,cols-1)) #camino en anchura sin tirar pared
 
         #Decidimos que muro hay que tirar:
-        paredSeleccionada = (None, None, None)                     #formato pared seleccionada
-        paredSeleccionada = derriba_mejor_pared(mat_ini, mat_fin)  #selección de pared
+        pared_seleccionada = (None, None, None)                     #formato pared seleccionada
+        pared_seleccionada = derriba_mejor_pared(mat_ini, mat_fin)  #selección de pared
 
         #------ PRINTS del ejercicio: ------
-        print(paredSeleccionada[1][0], paredSeleccionada[1][1], paredSeleccionada[2][0], paredSeleccionada[2][1])
+        if pared_seleccionada[1] < pared_seleccionada[2]:
+            print(pared_seleccionada[1][0], pared_seleccionada[1][1], pared_seleccionada[2][0], pared_seleccionada[2][1])
+        else:
+            print(pared_seleccionada[2][0], pared_seleccionada[2][1], pared_seleccionada[1][0], pared_seleccionada[1][1])
         print(len(caminoSinTirarPared)-1)
-        print(paredSeleccionada[0])
+        print(pared_seleccionada[0])
+        #-----------------------------------
 
         # OPCIONAL: Opción '-g' muestra gráficamente el laberinto
         if len(sys.argv) == 3 and sys.argv[2] == '-g':
             lv = LabyrinthViewer(lab, canvas_width=1200, canvas_height=750, margin=6)
             lv.add_path(caminoSinTirarPared, 'green', 0)
-            # lv.add_path()
+
+            lv.add_marked_cell(pared_seleccionada[1], 'red')
+            lv.add_marked_cell(pared_seleccionada[2], 'red')
+
+            # Nuevo laberinto con el pasillo nuevo (al quitar un muro, tienes un nuevo pasillo)
+            nuevo_vector = vectorPasillos.copy()
+            nuevo_vector.append((pared_seleccionada[1], pared_seleccionada[2]))
+            lab2 = UndirectedGraph(E=nuevo_vector)
+
+            caminoConTirarPared = shortest_path(lab2, (0, 0), (rows-1, cols-1))
+
+            lv.add_path(caminoConTirarPared, 'blue', 4)
+
             lv.run()
+
 
