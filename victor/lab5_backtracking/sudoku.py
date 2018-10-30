@@ -38,15 +38,23 @@ class SudokuPS(PartialSolution):
 
     # Indica si la sol. parcial es ya una solución factible (completa)
     def is_solution(self) -> bool:
-        pass  # IMPLEMENTAR
+        return primera_vacia(self.s) == None
 
     # Si es sol. factible, la devuelve. Si no lanza excepción
     def get_solution(self) -> Sudoku:
-        pass  # IMPLEMENTAR
+        if self.is_solution():
+            return self.s
+        else:
+            raise Exception('Error en getSolution')
 
     # Devuelve la lista de sus sol. parciales sucesoras
     def successors(self) -> Iterable["SudokuPS"]:
-        pass  # IMPLEMENTAR
+        copiaSudoku = [fila[:] for fila in self.s]
+        fila, col = primera_vacia(self.s)
+
+        for posible in posibles_en(self.s, fila, col):
+            copiaSudoku[fila][col] = posible
+            yield SudokuPS(copiaSudoku)
 
 
 # PROGRAMA PRINCIPAL -------------------------------------------------------
@@ -63,8 +71,11 @@ if __name__ == "__main__":
     print("Original:")
     pretty_print(m_sudoku)
     print("\nSoluciones:")
+
     # Mostrar todas las soluciones
-    # IMPLEMENTAR utilizando SudokuPS y BacktrackingSolver
-    # for solution in ...:
-    #     prettyPrint(solution)
+
+    for solution in BacktrackingSolver.solve(SudokuPS(m_sudoku)):
+        pretty_print(solution)
+        print()
+
     print("<TERMINDADO>")  # Espera a ver este mensaje para saber que el programa ha terminado
