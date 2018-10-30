@@ -5,12 +5,11 @@ Position = Tuple[int, int]
 Sudoku = List[List[int]]
 
 
-def primera_vacia(s: Sudoku) -> Optional[Position]:
+def vacias(s: Sudoku) -> Iterable[Position]:
     for fila in range(9):
         for col in range(9):
             if s[fila][col] == 0:
-                return fila, col
-    return None  # si el Sudoku ya está completo
+                yield fila, col
 
 
 def posibles_en(s: Sudoku, fila: int, col: int) -> Set[int]:
@@ -33,12 +32,13 @@ def pretty_print(s: Sudoku):
 
 
 class SudokuPS(PartialSolution):
-    def __init__(self, sudoku: Sudoku):
+    def __init__(self, sudoku: Sudoku, listaPosicionesVacias: List[Position]):
+        self.listaPosicionesVacias = listaPosicionesVacias
         self.s = sudoku
 
     # Indica si la sol. parcial es ya una solución factible (completa)
     def is_solution(self) -> bool:
-        return primera_vacia(self.s) == None
+        return len(self.listaPosicionesVacias) == 0
 
     # Si es sol. factible, la devuelve. Si no lanza excepción
     def get_solution(self) -> Sudoku:
@@ -50,10 +50,17 @@ class SudokuPS(PartialSolution):
     # Devuelve la lista de sus sol. parciales sucesoras
     def successors(self) -> Iterable["SudokuPS"]:
         copiaSudoku = [fila[:] for fila in self.s]
-        fila, col = primera_vacia(self.s)
 
-        for posible in posibles_en(self.s, fila, col):
-            copiaSudoku[fila][col] = posible
+        minFila, minCol = self.listaPosicionesVacias[0]
+        minListaPosiciones = len(posibles_en(self.s, minFila, minCol))
+
+        for fila, col in self.listaPosicionesVacias:
+            if len(posibles_en(self.s, fila, col)) < minListaPosiciones:
+                minFila, minCol = fila, col
+                minListaPosiciones = len(posibles_en(self.s, fila, col))
+
+        for posible in posibles_en(self.s, minFila, minCol):
+            copiaSudoku[minFila][minCol] = posible
             yield SudokuPS(copiaSudoku)
 
 
@@ -74,7 +81,7 @@ if __name__ == "__main__":
 
     # Mostrar todas las soluciones
 
-    for solution in BacktrackingSolver.solve(SudokuPS(m_sudoku)):
+    for solution in BacktrackingSolver.solve(SudokuPS(m_sudoku, list(vacias(m_sudoku)))):
         pretty_print(solution)
         print()
 
