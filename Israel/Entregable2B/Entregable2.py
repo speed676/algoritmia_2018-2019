@@ -17,7 +17,7 @@ def lee_fichero_imprenta(nombreFichero: str) -> Tuple[int, List[Folleto]]:
     return (m, folletos)
 
 def optimiza_folletos(m: int, folletos: List[Folleto]) -> List[PosicionFolleto]:
-    folletosOrdenados = sorted(range(len(folletos)), key = lambda i: folletos[i][2])
+    folletosOrdenados = sorted(range(len(folletos)), key = lambda i: -folletos[i][2])
     listaFinal = []
     numHoja = 1
     x = 0
