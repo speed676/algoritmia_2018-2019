@@ -49,7 +49,7 @@ class ImprentaViewer(EasyCanvas):
     def main(self):
         self.easycanvas_configure(title='ImprentaViewer',
                                   background='white',
-                                  size=(400, 400),
+                                  size=(600, 600),
                                   coordinates=(0, 0, self.pageSize, self.pageSize))
 
         print("*" * 30)

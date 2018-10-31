@@ -1,8 +1,10 @@
+import sys
 from typing import *
 from sys import argv
 
 Folleto = Tuple[int, int, int]
 PosicionFolleto = Tuple[int,int,int,int]
+
 
 def lee_fichero_imprenta(nombreFichero: str) -> Tuple[int, List[Folleto]]:
     folletos = []
@@ -14,16 +16,22 @@ def lee_fichero_imprenta(nombreFichero: str) -> Tuple[int, List[Folleto]]:
             datos = folleto.split(" ")
             folletos.append((int(datos[0]), int(datos[1]), int(datos[2])))
 
-    return (m, folletos)
+    return m, folletos
+
 
 def optimiza_folletos(m: int, folletos: List[Folleto]) -> List[PosicionFolleto]:
     optimizador = OrganizadorFolletos()
-
     return optimizador.optimiza_folletos(m, folletos)
 
+
 def muestra_solucion(solucion: List[PosicionFolleto]):
+    texto = ""
     for folleto in solucion:
         print(str(folleto[0]) + " " + str(folleto[1]) + " " + str(folleto[2]) + " " + str(folleto[3]))
+        texto += str(folleto[0]) + " " + str(folleto[1]) + " " + str(folleto[2]) + " " + str(folleto[3]) + "\n"
+
+    redirect_to_file(texto)
+
 
 class OrganizadorFolletos:
     def __init__(self):
@@ -36,45 +44,54 @@ class OrganizadorFolletos:
         self.m = 0
 
     def introducir_folleto(self, folleto: Folleto) -> bool:
-        derecha = self.x + folleto[1]
+        anchoAcumulado = self.x + folleto[1]
 
-        if derecha > self.m:
+        if anchoAcumulado > self.m:
             self.x = 0
             self.y = self.maxY
 
-        bottomY = self.y + folleto[2]
-        if bottomY > self.m:
+        altoAcumulado = self.y + folleto[2]
+
+        if altoAcumulado > self.m:
             return False
 
-        #print("METE DATO")
         self.listaFinal.append((folleto[0], self.numHoja, self.x, self.y))
         self.x += folleto[1]
 
-        if bottomY > self.maxY:
-            self.maxY = bottomY
+        if altoAcumulado > self.maxY:
+            self.maxY = altoAcumulado
 
         return True
 
+    def apilar_folleto(self, folleto_izquierda: Folleto, folleto_derecha: Folleto) -> bool:
+        altura_restante = self.m - folleto_izquierda[2]
+        anchura_folleto_derecha = folleto_derecha[1]
+        altura_folleto_derecha = folleto_derecha[2]
+
+        if altura_folleto_derecha <= altura_restante and anchura_folleto_derecha <= self.m:
+            self.listaFinal.append((folleto_derecha[0], self.numHoja, self.x, self.y + folleto_izquierda[2]))
+            return True
+        else:
+            return False
+
     def optimiza_folletos(self, m: int, folletos: List[Folleto]) -> List[PosicionFolleto]:
-        folletosOrdenados = sorted(range(len(folletos)), key=lambda i: -folletos[i][2]) # De mayor altura a menor altura
-        #folletosOrdenados = sorted(range(len(folletos)), key=lambda i: folletos[i][1] * folletos[i][2]) # De mayor area a menor area
-        #folletosOrdenados = sorted(range(len(folletos)),key=lambda i: folletos[i][2]) # De menor altura a mayor altura
+        folletosOrdenados = sorted(range(len(folletos)), key=lambda i: -folletos[i][2])
         self.listaFinal = []
         self.numHoja = 1
         self.x = 0
         self.y = 0
-        self.m = m
         self.maxY = 0
+        self.m = m
 
         indexIzquierda = 0
-        indexDerecha = len(folletos)-1
+        indexDerecha = len(folletos) - 1
 
-        # print("INICIO")
+        # Recorro el listado de folletos desde los dos extremos
         while indexIzquierda <= indexDerecha:
             caben = True
-            #print("NUEVA HOJA")
+
+            # Recorro el extremo izquierdo
             while caben and indexIzquierda < len(folletos):
-                #print("FOLLETO IZQUIERDA")
                 folletoIzquierda = folletos[folletosOrdenados[indexIzquierda]]
                 caben = self.introducir_folleto(folletoIzquierda)
 
@@ -83,27 +100,38 @@ class OrganizadorFolletos:
 
             caben = True
 
+            # Recorro el extremo derecho
             while caben and indexDerecha >= 0:
-                #print("FOLLETO DERECHA")
                 folletoDerecha = folletos[folletosOrdenados[indexDerecha]]
                 caben = self.introducir_folleto(folletoDerecha)
+                # caben = self.apilar_folleto(folletoDerecha)
 
                 if caben:
                     indexDerecha -= 1
 
             self.y = 0
+            self.x = 0
             self.maxY = 0
             self.numHoja += 1
 
         return self.listaFinal
 
+
+def redirect_to_file(text):
+    original = sys.stdout
+    sys.stdout = open('salida.txt', 'w')
+    print(text)
+    sys.stdout = original
+
+
 def main():
     if len(argv) < 2:
         print("Debe indicarse un path de fichero.")
     else:
-        m,folletos = lee_fichero_imprenta(argv[1])
-        listaPosiciones = optimiza_folletos(m,folletos)
+        m, folletos = lee_fichero_imprenta(argv[1])
+        listaPosiciones = optimiza_folletos(m, folletos)
         muestra_solucion(listaPosiciones)
+
 
 if __name__ == '__main__':
     main()

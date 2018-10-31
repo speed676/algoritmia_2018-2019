@@ -99,6 +99,6 @@ def test(nomfich_folletos: str, nomfich_solucion: str):
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
-        print("USO:\n\tpython3 comprueba_solucion_imprenta.py <ficheroImprenta.txt> <ficheroSolucion.txt>")
+        print("USO:\n\tpython3 comprueba_solucion_imprentaB.py <ficheroImprenta.txt> <ficheroSolucion.txt>")
     else:
         test(sys.argv[1], sys.argv[2])
