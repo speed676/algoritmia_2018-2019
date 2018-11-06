@@ -38,7 +38,7 @@ class SudokuPS(PartialSolution):
 
     # Indica si la sol. parcial es ya una solución factible (completa)
     def is_solution(self) -> bool:
-        return len(self.listaPosicionesVacias) == 0
+        return len(self.listaPosicionesVacias) == 0 and len(self.listaPosicionesVacias) == 0
 
     # Si es sol. factible, la devuelve. Si no lanza excepción
     def get_solution(self) -> Sudoku:
@@ -59,9 +59,11 @@ class SudokuPS(PartialSolution):
                 minFila, minCol = fila, col
                 minListaPosiciones = len(posibles_en(self.s, fila, col))
 
+        listaHijo = [fila[:] for fila in self.listaPosicionesVacias]
+        listaHijo.remove((minFila, minCol))
         for posible in posibles_en(self.s, minFila, minCol):
             copiaSudoku[minFila][minCol] = posible
-            yield SudokuPS(copiaSudoku)
+            yield SudokuPS(copiaSudoku, listaHijo)
 
 
 # PROGRAMA PRINCIPAL -------------------------------------------------------
