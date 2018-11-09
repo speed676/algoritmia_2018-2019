@@ -118,7 +118,6 @@ class Block:
 
         return is_valid_pos(bNuevo)
 
-
     def valid_moves(self, is_valid_pos: Callable[[Pos2D], bool]) -> Iterable[Move]:
         # TODO: IMPLEMENTAR - Debe devolver los movimientos válidos dada la posición actual
         # Debe utilizar la funcion is_valid_pos para comprobar cada casilla
