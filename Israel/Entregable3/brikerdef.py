@@ -45,8 +45,8 @@ class Level:
         self._tPos = None
 
         # Recorrer la matriz para obtener la S y T
-        for fila in self.rows:
-            for columna in self.cols:
+        for fila in range(self.rows):
+            for columna in range(self.cols):
                 celda = self._mat[fila][columna]
 
                 if celda == "S":
@@ -78,6 +78,7 @@ class Level:
 class Block:
     def __init__(self, b1: Pos2D, b2: Pos2D):
         assert isinstance(b1, Pos2D) and isinstance(b2, Pos2D)
+        print("Me encuentro en: (" + b1.__repr__() + " " + b2.__repr__())
         if b2.row < b1.row or (b2.row == b1.row and b2.col < b1.col):
             self._b1, self._b2 = b2, b1
         else:
@@ -115,7 +116,6 @@ class Block:
 
     def comprobarMovimiento(self, pos: Pos2D, x: int, y: int, is_valid_pos: Callable[[Pos2D], bool]):
         bNuevo = Pos2D(pos.row + y, pos.col + x)
-
         return is_valid_pos(bNuevo)
 
     def valid_moves(self, is_valid_pos: Callable[[Pos2D], bool]) -> Iterable[Move]:
@@ -123,34 +123,89 @@ class Block:
         # Debe utilizar la funcion is_valid_pos para comprobar cada casilla
 
         if self.is_standing():
-            if self.comprobarMovimiento(self.b2, 0, 2, is_valid_pos) \
-                    and self.comprobarMovimiento(self.b1, 0, 1, is_valid_pos):
+            if self.comprobarMovimiento(self._b2, 0, -2, is_valid_pos) \
+                    and self.comprobarMovimiento(self._b1, 0, -1, is_valid_pos):
                 yield Move.Up
 
-            if self.comprobarMovimiento(self.b2, 0, -2, is_valid_pos) \
-                    and self.comprobarMovimiento(self.b1, 0, -1, is_valid_pos):
+            if self.comprobarMovimiento(self._b2, 0, 2, is_valid_pos) \
+                    and self.comprobarMovimiento(self._b1, 0, 1, is_valid_pos):
                 yield Move.Down
 
-            if self.comprobarMovimiento(self.b2, 2, 0, is_valid_pos) \
-                    and self.comprobarMovimiento(self.b1, 1, 0, is_valid_pos):
+            if self.comprobarMovimiento(self._b2, 2, 0, is_valid_pos) \
+                    and self.comprobarMovimiento(self._b1, 1, 0, is_valid_pos):
                 yield Move.Right
 
-            if self.comprobarMovimiento(self.b2, -2, 0, is_valid_pos) \
-                    and self.comprobarMovimiento(self.b1, -1, 0, is_valid_pos):
+            if self.comprobarMovimiento(self._b2, -2, 0, is_valid_pos) \
+                    and self.comprobarMovimiento(self._b1, -1, 0, is_valid_pos):
+                yield Move.Left
+        elif self.is_lying_on_a_row():
+            if self.comprobarMovimiento(self._b1, 0, -1, is_valid_pos) \
+                    and self.comprobarMovimiento(self._b2, 0, -1, is_valid_pos):
+                yield Move.Up
+
+            if self.comprobarMovimiento(self._b1, 0, 1, is_valid_pos) \
+                    and self.comprobarMovimiento(self._b2, 0, 1, is_valid_pos):
+                yield Move.Down
+
+            if self.comprobarMovimiento(self._b1, 1, 0, is_valid_pos):
+                yield Move.Right
+
+            if self.comprobarMovimiento(self._b2, -1, 0, is_valid_pos):
                 yield Move.Left
         else:
-            a=0
+            if self.comprobarMovimiento(self._b2, 0, -1, is_valid_pos):
+                yield Move.Up
 
-        raise NotImplementedError
+            if self.comprobarMovimiento(self._b1, 0, 1, is_valid_pos):
+                yield Move.Down
+
+            if self.comprobarMovimiento(self._b1, 1, 0, is_valid_pos) \
+                    and self.comprobarMovimiento(self._b2, 1, 0, is_valid_pos):
+                yield Move.Right
+
+            if self.comprobarMovimiento(self._b1, -1, 0, is_valid_pos) \
+                    and self.comprobarMovimiento(self._b2, -1, 0, is_valid_pos):
+                yield Move.Left
 
     def move(self, m: Move) -> "Block":
-        # TODO: IMPLEMENTAR - Debe devolver un nuevo objeto 'Block', sin modificar el original
-        raise NotImplementedError
+        if self.is_standing():
+            if m == Move.Up:
+                b2Nuevo = self._b2.add_row(-2)
+                b1Nuevo = self._b1.add_row(-1)
+            elif m == Move.Left:
+                b1Nuevo = self._b1.add_col(-1)
+                b2Nuevo = self._b2.add_col(-2)
+            elif m == Move.Right:
+                b1Nuevo = self._b1.add_col(1)
+                b2Nuevo = self._b2.add_col(2)
+            else:
+                b1Nuevo = self._b1.add_row(1)
+                b2Nuevo = self._b2.add_row(2)
+        elif self.is_lying_on_a_row():
+            if m == Move.Up:
+                b1Nuevo = self._b1.add_row(-1)
+                b2Nuevo = self._b2.add_row(-1)
+            elif m == Move.Left:
+                b1Nuevo = self._b1.add_col(-2)
+                b2Nuevo = self._b2.add_col(-1)
+            elif m == Move.Right:
+                b1Nuevo = self._b1.add_col(1)
+                b2Nuevo = self._b2.add_col(2)
+            else:
+                b1Nuevo = self._b1.add_row(1)
+                b2Nuevo = self._b2.add_row(1)
+        else:
+            if m == Move.Up:
+                b1Nuevo = self._b2.add_row(-2)
+                b2Nuevo = self._b1.add_row(-1)
+            elif m == Move.Left:
+                b1Nuevo = self._b1.add_col(-1)
+                b2Nuevo = self._b2.add_col(-1)
+            elif m == Move.Right:
+                b1Nuevo = self._b1.add_col(1)
+                b2Nuevo = self._b2.add_col(1)
+            else:
+                b1Nuevo = self._b1.add_row(1)
+                b2Nuevo = self._b2.add_row(2)
 
-# ---------------------------------------------------------------------------------------------------------
-def main():
-    level = Level("...")
-    posicionInicial = level.get_startpos()
-    block = Block(posicionInicial, posicionInicial)
-    block.valid_moves(level.is_valid)
-
+        return Block(b1Nuevo, b2Nuevo)

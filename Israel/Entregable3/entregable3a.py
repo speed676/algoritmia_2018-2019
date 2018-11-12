@@ -1,44 +1,60 @@
 import sys
 from typing import *
 
-from brikerdef import Move, Block, Level
-from Utils.bt_scheme import PartialSolutionWithVisitedControl, Solution, State
+from Israel.Entregable3.brikerdef import Move, Block, Level
+from libs.bt_scheme import PartialSolutionWithVisitedControl, Solution, State, BacktrackingVCSolver
 
 
 def bricker_vc_solve(level: Level):
     class BrikerVC_PS(PartialSolutionWithVisitedControl):
         def __init__(self, block: Block, decisions: Tuple[Move, ...]):
-            # TODO: Implementar
-            raise NotImplementedError
+            self._block = block
+            self._decisions = decisions
 
         def is_solution(self) -> bool:
-            # TODO: Implementar
-            raise NotImplementedError
+            return self._block.is_standing_at_pos(level.get_targetpos())
 
         def get_solution(self) -> Solution:
-            # TODO: Implementar
-            raise NotImplementedError
+            return self._decisions
 
         def successors(self) -> Iterable["BrikerVC_PS"]:
-            # TODO: Implementar
-            raise NotImplementedError
+            listaAux = list(self._decisions)
+
+            #for direccion in self._block.valid_moves(level.is_valid):
+            #    nuevoPosBloque = self._block.move(direccion)
+            #    if not(visitados.__contains__(nuevoPosBloque)):
+            #        print("Direccion tomada: " + str(direccion))
+            #        listaAux.append(direccion)
+            #        visitados.add(nuevoPosBloque)
+            #        yield BrikerVC_PS(self._block.move(direccion), tuple(listaAux))
+            #        listaAux.pop()
+            for direccion in self._block.valid_moves(level.is_valid):
+                print("Direccion tomada: " + str(direccion))
+                listaAux.append(direccion)
+                yield BrikerVC_PS(self._block.move(direccion), tuple(listaAux))
+                listaAux.pop()
 
         def state(self) -> State:
-            # TODO: Implementar
-            raise NotImplementedError
+            return self._block
 
-    # TODO: crea initial_ps y llama a BacktrackingVCSolver.solve
-    raise NotImplementedError
+    b1 = level.get_startpos()
+    initial_ps = BrikerVC_PS(Block(b1, b1), ())
+    return BacktrackingVCSolver.solve(initial_ps)
 
 
 if __name__ == '__main__':
     level_filename = "level1.txt"  # TODO: Cámbialo por sys.argv[1]
 
-    print("<BEGIN BACKTRACKING>\n")
+    if len(sys.argv) < 2:
+        print("ERROR: falta parametro.")
+    else:
+        level_filename = sys.argv[1]
 
-    for solution in bricker_vc_solve(Level(level_filename)):
-        string_solution = "".join(solution)  # convierte la solución de lista a string
-        print("La primera solución encontrada es: {0} (longitud: {1})".format(string_solution, len(string_solution)))
-        break
+        print("<BEGIN BACKTRACKING>\n")
 
-    print("\n<END BACKTRACKING>")
+        for solution in bricker_vc_solve(Level(level_filename)):
+            string_solution = "".join(solution)  # convierte la solución de lista a string
+            print("La primera solución encontrada es: {0} (longitud: {1})".format(string_solution, len(string_solution)))
+            break
+
+        print("\n<END BACKTRACKING>")
