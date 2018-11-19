@@ -21,6 +21,7 @@ def bricker_vc_solve(level: Level):
             listaAux = list(self._decisions)
             # visitados = set()
 
+            # Version controlando los visitados
             # for direccion in self._block.valid_moves(level.is_valid):
             #    nuevoPosBloque = self._block.move(direccion)
             #    if not(visitados.__contains__(nuevoPosBloque)):
