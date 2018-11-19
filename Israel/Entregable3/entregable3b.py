@@ -1,15 +1,15 @@
 import sys
 from typing import *
 
-from brikerdef import Move, Block, Level
-from Utils.bt_scheme import PartialSolutionWithOptimization, BacktrackingOptSolver, Solution, State
+from Israel.Entregable3.brikerdef import Move, Block, Level
+from libs.bt_scheme import PartialSolutionWithOptimization, BacktrackingOptSolver, Solution, State
 
 
-def bricker_opt_solve(level):
+def bricker_opt_solve(level: Level):
     class BrikerOpt_PS(PartialSolutionWithOptimization):
         def __init__(self, block: Block, decisions: Tuple[Move, ...]):
-            # TODO: Implementar
-            raise NotImplementedError
+            self._block = block
+            self._decisions = decisions
 
         def is_solution(self)-> bool:
             # TODO: Implementar

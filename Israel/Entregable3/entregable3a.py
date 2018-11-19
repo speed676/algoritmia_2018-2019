@@ -19,17 +19,19 @@ def bricker_vc_solve(level: Level):
 
         def successors(self) -> Iterable["BrikerVC_PS"]:
             listaAux = list(self._decisions)
+            # visitados = set()
 
-            #for direccion in self._block.valid_moves(level.is_valid):
+            # for direccion in self._block.valid_moves(level.is_valid):
             #    nuevoPosBloque = self._block.move(direccion)
             #    if not(visitados.__contains__(nuevoPosBloque)):
-            #        print("Direccion tomada: " + str(direccion))
+            #        #print("Direccion tomada: " + str(direccion))
             #        listaAux.append(direccion)
             #        visitados.add(nuevoPosBloque)
             #        yield BrikerVC_PS(self._block.move(direccion), tuple(listaAux))
             #        listaAux.pop()
+
             for direccion in self._block.valid_moves(level.is_valid):
-                print("Direccion tomada: " + str(direccion))
+                # print("Direccion tomada: " + str(direccion))
                 listaAux.append(direccion)
                 yield BrikerVC_PS(self._block.move(direccion), tuple(listaAux))
                 listaAux.pop()
