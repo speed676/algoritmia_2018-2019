@@ -12,27 +12,25 @@ def bricker_opt_solve(level: Level):
             self._decisions = decisions
 
         def is_solution(self)-> bool:
-            # TODO: Implementar
-            raise NotImplementedError
+            return self._block.is_standing_at_pos(level.get_targetpos())
 
         def get_solution(self) -> Solution:
-            # TODO: Implementar
-            raise NotImplementedError
+            return self._decisions
 
         def successors(self) -> Iterable["BrikerOpt_PS"]:
             # TODO: Implementar
             raise NotImplementedError
 
         def state(self) -> State:
-            # TODO: Implementar
-            raise NotImplementedError
+            return self._block
 
         def f(self) -> Union[int, float]:
             # TODO: Implementar
             raise NotImplementedError
 
-    # TODO: crea initial_ps y llama a BacktrackingOptSolver.solve
-    raise NotImplementedError
+    b1 = level.get_startpos()
+    initial_ps = BrikerOpt_PS(Block(b1, b1), ())
+    return BacktrackingOptSolver.solve(initial_ps)
 
 
 if __name__ == '__main__':
