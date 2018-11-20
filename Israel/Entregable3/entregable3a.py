@@ -32,7 +32,7 @@ def bricker_vc_solve(level: Level):
             #        listaAux.pop()
 
             for direccion in self._block.valid_moves(level.is_valid):
-                # print("Direccion tomada: " + str(direccion))
+                print("Direccion tomada: " + str(direccion) + " " + self._block.__repr__() + " -> " + self._block.move(direccion).__repr__())
                 listaAux.append(direccion)
                 yield BrikerVC_PS(self._block.move(direccion), tuple(listaAux))
                 listaAux.pop()
@@ -46,8 +46,6 @@ def bricker_vc_solve(level: Level):
 
 
 if __name__ == '__main__':
-    level_filename = "level1.txt"  # TODO: Cámbialo por sys.argv[1]
-
     if len(sys.argv) < 2:
         print("ERROR: falta parametro.")
     else:
