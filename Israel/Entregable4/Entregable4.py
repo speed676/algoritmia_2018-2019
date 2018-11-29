@@ -1,7 +1,4 @@
-import sys
 import re
-from typing import *
-from Israel.Entregable4.kdtree import *
 from Israel.Entregable4.kdtreeviewer import *
 from Israel.Utils.Modulo import *
 
@@ -15,7 +12,6 @@ def read_points(nombreFichero: str) -> List[Punto]:
     with open(nombreFichero) as fichero:
         for punto in fichero:
             if len(punto) > 0:
-                # coordenadas = punto.replace(",", ".").split(" ")
                 coordenadas = patron.split(punto.replace(",", "."))
                 p = (float(coordenadas[0]), float(coordenadas[1]))
                 listaPuntos.append(p)
