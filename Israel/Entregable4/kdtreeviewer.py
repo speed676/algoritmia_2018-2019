@@ -5,7 +5,8 @@ Created on 19/11/2018
 """
 from typing import *
 from easycanvas import EasyCanvas
-from Utils.kdtree import Axis, KDTree, KDNode, KDLeaf
+from Israel.Entregable4.kdtree import Axis, KDTree, KDNode, KDLeaf
+
 import sys
 
 
@@ -45,7 +46,7 @@ class KDTreeViewer(EasyCanvas):
         min_x, max_x = min(x), max(x)
         min_y, max_y = min(y), max(y)
 
-        sizex = 800
+        sizex = 650
         sizey = sizex * (max_y - min_y) / (max_x - min_x)
 
         b = (max_x - min_x) * 0.05  # el borde será el 5% del tamaño del eje x

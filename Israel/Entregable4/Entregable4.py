@@ -1,67 +1,76 @@
 import sys
+import re
 from typing import *
 from Israel.Entregable4.kdtree import *
 from Israel.Entregable4.kdtreeviewer import *
+from Israel.Utils.Modulo import *
 
 Punto = Tuple[float, float]
 
 
 def read_points(nombreFichero: str) -> List[Punto]:
     listaPuntos = []
+    patron = re.compile(" +")
 
     with open(nombreFichero) as fichero:
         for punto in fichero:
-            coordenadas = punto.split(" ")
-            p = Punto(float(coordenadas[0]), float(coordenadas[1]))
-            listaPuntos.append(p)
+            if len(punto) > 0:
+                # coordenadas = punto.replace(",", ".").split(" ")
+                coordenadas = patron.split(punto.replace(",", "."))
+                p = (float(coordenadas[0]), float(coordenadas[1]))
+                listaPuntos.append(p)
 
     return listaPuntos
 
 
-def obtenerMediana(eje: Axis, lista: List[Punto]) -> float:
-    indiceCentral = len(lista) // 2
-
+def obtenerMediana(eje: Axis, lista: List[Punto], indiceCentral: int) -> float:
     if len(lista) % 2 == 0:
-        return (lista[indiceCentral][eje] + lista[indiceCentral + 1][eje]) / 2
+        return (lista[indiceCentral][eje] + lista[indiceCentral - 1][eje]) / 2
     else:
         return lista[indiceCentral][eje]
 
 
 def build_kd_tree(puntos: List[Punto])-> KDTree:
-    listaX = sorted(puntos, key=lambda p: p[0])
-    listaY = sorted(puntos, key=lambda p: p[1])
+    if len(puntos) == 0:
+        return None
+    elif len(puntos) == 1: #1 punto
+        return KDLeaf(puntos[0])
+    else: # más de 1 punto
+        listaX = sorted(puntos, key=lambda p: p[0])
+        listaY = sorted(puntos, key=lambda p: p[1])
 
-    ancho = listaX[-1] - listaX[0]
-    alto = listaY[-1] - listaY[0]
+        ancho = listaX[-1][Axis.X] - listaX[0][Axis.X]
+        alto = listaY[-1][Axis.Y] - listaY[0][Axis.Y]
 
-    if ancho > alto:
-        eje = Axis.X
-        listaEje = listaX
-    else:
-        eje = Axis.Y
-        listaEje = listaY
+        if ancho > alto:
+            eje = Axis.X
+            listaEje = listaX
+        else:
+            eje = Axis.Y
+            listaEje = listaY
 
-    mediana = obtenerMediana(eje, listaEje)
+        indiceCentral = len(listaEje) // 2
+        mediana = obtenerMediana(eje, listaEje, indiceCentral)
 
-    if casoEspecial1: #1 punto
-        a=0
-    elif casoEspecial2: #2 puntos
-        a=0
-    else: # mas de 2 puntos
-        a=0
+        hijoIzquierda = build_kd_tree(listaEje[:indiceCentral]) # Cortamos la lista desde 0 hasta indiceCentral
+        hijoDerecha = build_kd_tree(listaEje[indiceCentral:]) # Cortamos la lista desde indiceCentral hasta fin
+        arbol = KDNode(eje, mediana, hijoIzquierda, hijoDerecha)
 
-    hijo1 = build_kd_tree()
-    hijo2 = build_kd_tree()
-    arbol = KDNode(eje, mediana, hijo1, hijo2)
+        return arbol
 
-    return arbol
 
 def main():
     if len(sys.argv) < 2:
         print("Error. Falta fichero.")
     else:
-        a=0
-        # Hacer cosas
+        listaPuntos = read_points(sys.argv[1])
+        arbol = build_kd_tree(listaPuntos)
+
+        # cad = arbol.pretty()
+        # write_to_file(cad)
+
+        visor = KDTreeViewer(arbol)
+        visor.run()
 
 
 if __name__ == "__main__":
