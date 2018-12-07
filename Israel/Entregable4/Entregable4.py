@@ -15,7 +15,6 @@ def read_points(nombreFichero: str) -> List[Punto]:
     with open(nombreFichero) as fichero:
         for punto in fichero:
             if len(punto) > 0:
-                # coordenadas = punto.replace(",", ".").split(" ")
                 coordenadas = patron.split(punto.replace(",", "."))
                 p = (float(coordenadas[0]), float(coordenadas[1]))
                 listaPuntos.append(p)
@@ -23,11 +22,10 @@ def read_points(nombreFichero: str) -> List[Punto]:
     return listaPuntos
 
 
-def obtenerMediana(eje: Axis, lista: List[Punto], indiceCentral: int) -> float:
+def obtener_mediana(eje: Axis, lista: List[Punto], indiceCentral: int) -> float:
     if len(lista) % 2 == 0:
         return (lista[indiceCentral][eje] + lista[indiceCentral - 1][eje]) / 2
-    else:
-        return lista[indiceCentral][eje]
+    return lista[indiceCentral][eje]
 
 
 def build_kd_tree(puntos: List[Punto])-> KDTree:
@@ -50,7 +48,7 @@ def build_kd_tree(puntos: List[Punto])-> KDTree:
             listaEje = listaY
 
         indiceCentral = len(listaEje) // 2
-        mediana = obtenerMediana(eje, listaEje, indiceCentral)
+        mediana = obtener_mediana(eje, listaEje, indiceCentral)
 
         hijoIzquierda = build_kd_tree(listaEje[:indiceCentral]) # Cortamos la lista desde 0 hasta indiceCentral
         hijoDerecha = build_kd_tree(listaEje[indiceCentral:]) # Cortamos la lista desde indiceCentral hasta fin
