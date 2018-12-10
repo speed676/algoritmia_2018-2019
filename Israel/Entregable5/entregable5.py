@@ -216,20 +216,72 @@ def find_lower_energy_seam(m: MatrixGrayImage) -> List[int]:  # TODO: IMPLEMENTA
     # return seam
 
     seam = []
+    dict = {}
 
-    for col in range(cols):
-        minConsumoTotal = sys.maxsize
-        indiceMinimoConsumo = -1
+    for fil in range(rows):
+        indiceMinimo = -2
+        sumaMinima = sys.maxsize
 
-        for fil in range(rows):
-            valor = m[fil][col]
-            if valor < minConsumoTotal:
-                minConsumoTotal = valor
-                indiceMinimoConsumo = fil
+        for col in range(cols):
+            suma = m[fil][col]
 
-        seam.append(indiceMinimoConsumo)
+            if fil > 0:
+                print(str(seam[-1] - 1) + " - " + str(seam[-1] + 1))
+                suma += padreMinimo(dict, fil, col, cols)
+
+            dict[(fil, col)] = suma
+
+            if (fil == 0 or (col >= (seam[-1] - 1) and col <= (seam[-1] + 1))):
+                print("IF 1")
+                if suma < sumaMinima:
+                    print("IF 2")
+
+                    sumaMinima = suma
+                    indiceMinimo = col
+
+
+        print(indiceMinimo)
+        seam.append(indiceMinimo)
+
+    # for fil in range(rows):
+    #     indiceMinimo = -1
+    #     sumaMinima = sys.maxsize
+    #     columnaMinimaAnterior = -1
+    #     for col in range(cols):
+    #         suma = m[fil][col]
+    #
+    #         if fil > 0:
+    #             suma += padreMinimo(dict, fil, col, cols)
+    #             if col >= columnaMinimaAnterior - 1 and col <= columnaMinimaAnterior + 1 \
+    #                and suma < sumaMinima:
+    #                 sumaMinima = suma
+    #                 indiceMinimo = col
+    #         elif suma < sumaMinima:
+    #             sumaMinima = suma
+    #             indiceMinimo = col
+    #
+    #         dict[(fil, col)] = suma
+    #
+    #
+    #     columnaMinimaAnterior = indiceMinimo
+    #     seam.append(indiceMinimo)
+
+    print(seam)
 
     return seam
+
+
+def padreMinimo(dict: Dict[Tuple[int, int], int], fil: int, col: int, cols: int) -> int:
+    valMin = sys.maxsize
+
+    for colPadre in range(max(col - 1, 0), min(col + 1, cols - 1)):
+        valDic = dict[(fil - 1, colPadre)]
+
+        if valDic < valMin:
+            valMin = valDic
+
+    return valMin
+
 
 ####################################################################################
 # No es necesario modificar el código que hay DEBAJO de esta línea
