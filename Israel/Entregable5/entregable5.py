@@ -219,54 +219,22 @@ def find_lower_energy_seam(m: MatrixGrayImage) -> List[int]:  # TODO: IMPLEMENTA
     dict = {}
 
     for fil in range(rows):
-        indiceMinimo = -2
+        indiceMinimo = -1
         sumaMinima = sys.maxsize
 
         for col in range(cols):
             suma = m[fil][col]
 
             if fil > 0:
-                print(str(seam[-1] - 1) + " - " + str(seam[-1] + 1))
                 suma += padreMinimo(dict, fil, col, cols)
 
             dict[(fil, col)] = suma
 
-            if (fil == 0 or (col >= (seam[-1] - 1) and col <= (seam[-1] + 1))):
-                print("IF 1")
-                if suma < sumaMinima:
-                    print("IF 2")
+            if (fil == 0 or ((seam[-1] - 1) <= col <= (seam[-1] + 1))) and (suma < sumaMinima):
+                sumaMinima = suma
+                indiceMinimo = col
 
-                    sumaMinima = suma
-                    indiceMinimo = col
-
-
-        print(indiceMinimo)
         seam.append(indiceMinimo)
-
-    # for fil in range(rows):
-    #     indiceMinimo = -1
-    #     sumaMinima = sys.maxsize
-    #     columnaMinimaAnterior = -1
-    #     for col in range(cols):
-    #         suma = m[fil][col]
-    #
-    #         if fil > 0:
-    #             suma += padreMinimo(dict, fil, col, cols)
-    #             if col >= columnaMinimaAnterior - 1 and col <= columnaMinimaAnterior + 1 \
-    #                and suma < sumaMinima:
-    #                 sumaMinima = suma
-    #                 indiceMinimo = col
-    #         elif suma < sumaMinima:
-    #             sumaMinima = suma
-    #             indiceMinimo = col
-    #
-    #         dict[(fil, col)] = suma
-    #
-    #
-    #     columnaMinimaAnterior = indiceMinimo
-    #     seam.append(indiceMinimo)
-
-    print(seam)
 
     return seam
 
