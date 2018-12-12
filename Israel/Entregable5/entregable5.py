@@ -87,7 +87,7 @@ class ColorImage:
             for r in range(self.rows):
                 for c in range(self.cols):
                     cl = [int(v) for v in self.imageOrig.get(c, r)]
-                    #cr, cg, cb = [int(v) for v in self.imageOrig.get(c, r).split()]
+                    # cr, cg, cb = [int(v) for v in self.imageOrig.get(c, r).split()] # Esto da error porque no hace el split como toca
                     cr, cg, cb = cl[0], cl[1], cl[2]
                     self.m[r][c] = PixelColor(cr, cg, cb)
         elif isinstance(obj, List) and isinstance(obj[0], List) and isinstance(obj[0][0], PixelColor):
@@ -203,25 +203,41 @@ def main():
 # Encuentra la veta de menor energia y la devuelve como una lista de enteros: el entero en
 # la posición k, contiene el índice de la columna en la que se encuentra la veta en
 # la fila k.
-def find_lower_energy_seam(m: MatrixGrayImage) -> List[int]:  # TODO: IMPLEMENTAR
+def find_lower_energy_seam(m: MatrixGrayImage) -> List[int]:
     rows = len(m)
     cols = len(m[0])
-
-    # IMPLEMENTACÍON FAKE: devuelve una veta al azar
-    # from random import randint
-    # seam = [randint(0, cols - 1)]
-    # for r in range(1, rows):
-    #     seam.append(max(0, min(seam[-1] + randint(-1, 1), cols - 1)))
-    # return seam
-
     seam = []
-    dict = {}
+    dicc = {}
 
+    colInicial = obtenerColumnaInicio(dicc, m)
+    seam.append(colInicial)
+
+    for fil in range(1, rows):
+        indiceMinimo = -1
+        sumaMinima = sys.maxsize
+
+        for col in range(cols):  # rangoIndices(seam[-1] - 5, seam[-1] + 6, cols):
+            suma = m[fil][col] + padreMinimo(dicc, fil, col, cols)
+            dicc[(fil, col)] = suma
+
+            if ((seam[-1] - 1) <= col <= (seam[-1] + 1)) and (suma <= sumaMinima):
+                sumaMinima = suma
+                indiceMinimo = col
+
+        seam.append(indiceMinimo)
+
+    return seam
+
+
+def obtenerColumnaInicio(dicc: Dict[Tuple[int, int], int], m: MatrixGrayImage) -> int:
+    rows = len(m)
+    cols = len(m[0])
     colInicial = 0
     sumaMin = sys.maxsize
+
     for col in range(cols):
         suma = 0
-        dict[(0, col)] = m[0][col]
+        dicc[(0, col)] = m[0][col]
 
         for fil in range(rows):
             suma += m[fil][col]
@@ -229,43 +245,18 @@ def find_lower_energy_seam(m: MatrixGrayImage) -> List[int]:  # TODO: IMPLEMENTA
             sumaMin = suma
             colInicial = col
 
-    print()
-    seam.append(colInicial)
-    # print("colInicial = " + str(colInicial))
-
-    for fil in range(1, rows):
-        indiceMinimo = -1
-        sumaMinima = sys.maxsize
-
-        # for col in range(cols):
-        #rango = rangoIndices(seam[-1]-2, seam[-1]+3, cols)
-        for col in range(cols): # rangoIndices(seam[-1] - 5, seam[-1] + 6, cols):
-            # print(col)
-            suma = m[fil][col] + padreMinimo(dict, fil, col, cols)
-
-            # print("guardado (" + str(fil) + ", " + str(col) + ")")
-            dict[(fil, col)] = suma
-
-            if (((seam[-1] - 1) <= col <= (seam[-1] + 1))) and (suma < sumaMinima):
-                sumaMinima = suma
-                indiceMinimo = col
-
-        seam.append(indiceMinimo)
-        # print("indiceMinimo = " + str(indiceMinimo))
-
-    return seam
+    return colInicial
 
 
 def rangoIndices(indexInicial: int, indexFinal: int, n: int) -> Iterable[int]:
-    return range(max(indexInicial, 0),
-                 min(indexFinal, n - 1))
+    return range(max(indexInicial, 0), min(indexFinal, n - 1))
 
 
-def padreMinimo(dict: Dict[Tuple[int, int], int], fil: int, col: int, cols: int) -> int:
+def padreMinimo(dicc: Dict[Tuple[int, int], int], fil: int, col: int, cols: int) -> int:
     valMin = sys.maxsize
 
     for colPadre in rangoIndices(col - 1, col + 1, cols):
-        valDic = dict[(fil - 1, colPadre)]
+        valDic = dicc[(fil - 1, colPadre)]
 
         if valDic < valMin:
             valMin = valDic
