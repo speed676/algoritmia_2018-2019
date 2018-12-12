@@ -155,7 +155,6 @@ def main():
     root = tkinter.Tk()
     root.title("Seam Carving - Algoritmia - UJI 2018")
     root.resizable(width=False, height=False)
-    print("1")
     # Lee la imagen original
     color_image = ColorImage(image_filename)
 
@@ -218,31 +217,54 @@ def find_lower_energy_seam(m: MatrixGrayImage) -> List[int]:  # TODO: IMPLEMENTA
     seam = []
     dict = {}
 
-    for fil in range(rows):
+    colInicial = 0
+    sumaMin = sys.maxsize
+    for col in range(cols):
+        suma = 0
+        dict[(0, col)] = m[0][col]
+
+        for fil in range(rows):
+            suma += m[fil][col]
+        if suma < sumaMin:
+            sumaMin = suma
+            colInicial = col
+
+    print()
+    seam.append(colInicial)
+    # print("colInicial = " + str(colInicial))
+
+    for fil in range(1, rows):
         indiceMinimo = -1
         sumaMinima = sys.maxsize
 
-        for col in range(cols):
-            suma = m[fil][col]
+        # for col in range(cols):
+        #rango = rangoIndices(seam[-1]-2, seam[-1]+3, cols)
+        for col in range(cols): # rangoIndices(seam[-1] - 5, seam[-1] + 6, cols):
+            # print(col)
+            suma = m[fil][col] + padreMinimo(dict, fil, col, cols)
 
-            if fil > 0:
-                suma += padreMinimo(dict, fil, col, cols)
-
+            # print("guardado (" + str(fil) + ", " + str(col) + ")")
             dict[(fil, col)] = suma
 
-            if (fil == 0 or ((seam[-1] - 1) <= col <= (seam[-1] + 1))) and (suma < sumaMinima):
+            if (((seam[-1] - 1) <= col <= (seam[-1] + 1))) and (suma < sumaMinima):
                 sumaMinima = suma
                 indiceMinimo = col
 
         seam.append(indiceMinimo)
+        # print("indiceMinimo = " + str(indiceMinimo))
 
     return seam
+
+
+def rangoIndices(indexInicial: int, indexFinal: int, n: int) -> Iterable[int]:
+    return range(max(indexInicial, 0),
+                 min(indexFinal, n - 1))
 
 
 def padreMinimo(dict: Dict[Tuple[int, int], int], fil: int, col: int, cols: int) -> int:
     valMin = sys.maxsize
 
-    for colPadre in range(max(col - 1, 0), min(col + 1, cols - 1)):
+    for colPadre in rangoIndices(col - 1, col + 1, cols):
         valDic = dict[(fil - 1, colPadre)]
 
         if valDic < valMin:
