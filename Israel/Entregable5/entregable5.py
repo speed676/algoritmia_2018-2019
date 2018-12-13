@@ -209,19 +209,18 @@ def find_lower_energy_seam(m: MatrixGrayImage) -> List[int]:
     seam = []
     dicc = {}
 
-    colInicial = obtenerColumnaInicio(dicc, m)
+    colInicial = obtenerColumnaInicio(m)
     seam.append(colInicial)
 
     for fil in range(1, rows):
         indiceMinimo = -1
         sumaMinima = sys.maxsize
 
-        for col in range(cols):  # rangoIndices(seam[-1] - 5, seam[-1] + 6, cols):
-            suma = m[fil][col] + padreMinimo(dicc, fil, col, cols)
-            dicc[(fil, col)] = suma
+        for col in rangoIndices(seam[-1] - 1, seam[-1] + 1, cols):
+            valorColumna = obtenerEngergiaAcumulativa(fil, col, dicc, m, cols)
 
-            if ((seam[-1] - 1) <= col <= (seam[-1] + 1)) and (suma <= sumaMinima):
-                sumaMinima = suma
+            if valorColumna <= sumaMinima:
+                sumaMinima = valorColumna
                 indiceMinimo = col
 
         seam.append(indiceMinimo)
@@ -229,7 +228,27 @@ def find_lower_energy_seam(m: MatrixGrayImage) -> List[int]:
     return seam
 
 
-def obtenerColumnaInicio(dicc: Dict[Tuple[int, int], int], m: MatrixGrayImage) -> int:
+def obtenerEngergiaAcumulativa(fil: int, col: int, dicc: Dict[Tuple[int, int], int], m: MatrixGrayImage, cols: int) -> int:
+    clave = (fil, col)
+
+    if clave not in dicc:
+        suma = m[fil][col]
+
+        if fil > 0:
+            valMin = sys.maxsize
+
+            for colPadre in rangoIndices(col - 1, col + 1, cols):
+                valPadre = obtenerEngergiaAcumulativa(fil - 1, colPadre, dicc, m, cols)
+
+                if valPadre < valMin:
+                    valMin = valPadre
+
+            suma += valMin
+        dicc[clave] = suma
+    return dicc[clave]
+
+
+def obtenerColumnaInicio(m: MatrixGrayImage) -> int:
     rows = len(m)
     cols = len(m[0])
     colInicial = 0
@@ -237,8 +256,6 @@ def obtenerColumnaInicio(dicc: Dict[Tuple[int, int], int], m: MatrixGrayImage) -
 
     for col in range(cols):
         suma = 0
-        dicc[(0, col)] = m[0][col]
-
         for fil in range(rows):
             suma += m[fil][col]
         if suma < sumaMin:
@@ -249,19 +266,7 @@ def obtenerColumnaInicio(dicc: Dict[Tuple[int, int], int], m: MatrixGrayImage) -
 
 
 def rangoIndices(indexInicial: int, indexFinal: int, n: int) -> Iterable[int]:
-    return range(max(indexInicial, 0), min(indexFinal, n - 1))
-
-
-def padreMinimo(dicc: Dict[Tuple[int, int], int], fil: int, col: int, cols: int) -> int:
-    valMin = sys.maxsize
-
-    for colPadre in rangoIndices(col - 1, col + 1, cols):
-        valDic = dicc[(fil - 1, colPadre)]
-
-        if valDic < valMin:
-            valMin = valDic
-
-    return valMin
+    return range(max(indexInicial, 0), min(indexFinal + 1, n))
 
 
 ####################################################################################
