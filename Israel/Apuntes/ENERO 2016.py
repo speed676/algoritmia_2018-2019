@@ -132,7 +132,7 @@ def sumandos_solver(problema: "List[List[int]]") -> "List[List[int]]":
     class BuscaSumandosPS(PartialSolution):
         def __init__(self, decisiones: List[int]):
             self.decisiones = decisiones
-        
+
         def is_solution(self) -> bool:
             if len(self.descisiones) != len(problema):
                 return False
