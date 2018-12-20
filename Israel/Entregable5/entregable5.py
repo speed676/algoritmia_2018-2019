@@ -1,4 +1,14 @@
 #####################################################################################################
+#  entregable5.py
+#
+#  Version 1.2: corregido bug:
+#     - La imagen resultante no se guardaba como gif.
+#  Version 1.1: corregidos dos bugs:
+#     - Ahora el programa también funciona si el método get de la clase tkinter.PhotoImage
+#       devuelve una tupla. Antes solo funcionaba si devolvía una cadena.
+#     - Nombre fichero de salida.
+#  Version 1.0: versión inicial
+#
 #  IMPORTANTE:                                                                                      #
 #  Sólo tienes que modificar la función find_lower_energy_seam que se encuentra al final del código #
 #####################################################################################################
@@ -86,9 +96,10 @@ class ColorImage:
             self.m: MatrixColorImage = [[PixelColor(0, 0, 0)] * self.cols for _ in range(self.rows)]
             for r in range(self.rows):
                 for c in range(self.cols):
-                    cl = [int(v) for v in self.imageOrig.get(c, r)]
-                    # cr, cg, cb = [int(v) for v in self.imageOrig.get(c, r).split()] # Esto da error porque no hace el split como toca
-                    cr, cg, cb = cl[0], cl[1], cl[2]
+                    if isinstance(self.imageOrig.get(c, r), str):
+                        cr, cg, cb = [int(v) for v in self.imageOrig.get(c, r).split()]
+                    else:  # --------- en algunas versiones de TkInter, el get devuelve una tupla ------------
+                        cr, cg, cb = [int(v) for v in self.imageOrig.get(c, r)]
                     self.m[r][c] = PixelColor(cr, cg, cb)
         elif isinstance(obj, List) and isinstance(obj[0], List) and isinstance(obj[0][0], PixelColor):
             # carga a partir de una matriz de pixels (p.e. colorImage.m)
@@ -150,11 +161,13 @@ def main():
     # LEER PARÁMETROS DE LA LÍNEA DE ÓRDENES
     image_filename = sys.argv[1]  # Por ejemplo: Castillo400x271.gif
     scale_width = (100 - max(1, min(99, int(sys.argv[2])))) / 100.0  # Por ejemplo: 15
+    output_filename = image_filename.split('.')[0]+f'_reduced_{sys.argv[2]}.gif'
 
     # Crea la ventana gráfica
     root = tkinter.Tk()
     root.title("Seam Carving - Algoritmia - UJI 2018")
     root.resizable(width=False, height=False)
+
     # Lee la imagen original
     color_image = ColorImage(image_filename)
 
@@ -188,7 +201,7 @@ def main():
 
     # Muestra la nueva imagen reescalada
     tki_reduced_image = reduced_image.get_tkinter_image()
-    tki_reduced_image.write("Castillo_reduced.gif")
+    tki_reduced_image.write(output_filename, format='gif')
     canvas.create_image((color_image.cols - final_width) / 2, color_image.rows,
                         image=tki_reduced_image, anchor="nw")
 
@@ -219,7 +232,7 @@ def find_lower_energy_seam(m: MatrixGrayImage) -> List[int]:
         for col in rangoIndices(seam[-1] - 1, seam[-1] + 1, cols):
             valorColumna = obtenerEngergiaAcumulativa(fil, col, dicc, m, cols)
 
-            if valorColumna <= sumaMinima:
+            if valorColumna < sumaMinima:
                 sumaMinima = valorColumna
                 indiceMinimo = col
 
