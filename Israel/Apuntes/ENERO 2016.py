@@ -22,7 +22,7 @@ def solve(vector : List[int]) -> List[int]:
 
     return indices
 
-# Version recursiva
+# Version recursiva (NO SIGUE ESQUEMA)
 def solve(vector : List[int], indices : List[int], indiceInicio, indiceFinal):
     n = indiceFinal - indiceInicio + 1
 
