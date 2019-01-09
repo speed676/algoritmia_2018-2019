@@ -76,6 +76,8 @@ class MinimoLocalProblem(IDecreaseAndConquerProblem):
 def func_opt(dias, beneficios, duracion) -> float:
     #Ejercicio hecho con elementos ordenados explicitamente
     pro_ord = sorted(range(len(beneficios)), key = lambda i: -beneficios[i]/duracion[i])
+    # pro_ord = sorted(beneficios, key = lambda e:-e) Asi ordeno los elementos de la lista de mayor a menor
+    # pro_ord = sorted(beneficios) Asi ordeno los elementos de la lista de menor a myor
     
     beneficio = 0
     diasRestantes = dias

@@ -126,7 +126,7 @@ def raiz_cuadrada_entera(n: int) -> int:
         grupos = (len(numeros) // 2) + 1
         inicio = 1
 
-    resultado = encontrar(int(pareja))
+    resultado = encontrarCuadrado(int(pareja))
     restoAux = int(pareja) - (resultado * resultado)
 
     for i in range(1, grupos):
@@ -152,7 +152,7 @@ def encontrarResto(resto: int, base: int) -> Tuple[int, int]:
     return (i-1, resultadoAnt)
 
 
-def encontrar(n: int) -> int:
+def encontrarCuadrado(n: int) -> int:
     rdo = 1
     i = 1
 
@@ -162,3 +162,40 @@ def encontrar(n: int) -> int:
 
     return i-1
 
+# a) SIGUIENDO EL ESQUEMA
+class RaizCuadrada(IDecreaseAndConquerProblem):
+    def __init__(self, numeros: str, resultado: int, resto: int):
+        self.resto = resto
+        self.numeros = numeros
+        self.resultado = resultado
+
+    def is_simple(self) -> bool:
+        return len(self.numeros) <= 2
+
+    def trivial_solution(self) -> Solution:
+        return self.resultado
+
+    def decrease(self) -> IDecreaseAndConquerProblem:
+        pareja = ""
+        numerosRestante = ""
+
+        if len(self.numeros) % 2 == 0:
+            pareja = self.numeros[0:2]
+            numerosRestante = self.numeros[2:len(self.numeros)]
+        else:
+            pareja = self.numeros[0:1]
+            numerosRestante = self.numeros[1:len(self.numeros)]
+
+        if self.resultado == 0:
+            self.resultado = encontrarCuadrado(int(pareja))
+            self.resto = int(pareja) - (self.resultado * self.resultado)
+        else:
+            self.resto = self.resto * 100 + int(pareja)
+            restoEncontrado = encontrarResto(self.resto, (self.resultado  * 2))
+            self.resto -= restoEncontrado[1]
+            self.resultado = self.resultado * 10 + restoEncontrado[0]
+
+        return RaizCuadrada(numerosRestante, self.resultado, self.resto)
+
+    def process(self, s: Solution) -> Solution:
+        return s
