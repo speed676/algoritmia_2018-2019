@@ -1,55 +1,56 @@
 from typing import *
 
-def raiz_cuadrada_entera(n: int) -> int:
-    resultado = 0
-    restoAux = 0
-    numeros = str(n)
-    grupos = 0
-    inicio = 0
 
-    if len(numeros) % 2 == 0:
-        pareja = numeros[0:2]
-        grupos = len(numeros)//2
-        inicio = 0
+def solve(v: List[int], numero: int) -> int:
+    pivote = 0
+    izquierda = 0
+    derecha = len(v) - 1
+    apariciones = 0
+    listaIzquierda = []
+    listaDerecha = []
+
+    while izquierda != derecha and v[pivote] != numero:
+        pivote = (izquierda + derecha + 1) // 2
+        if v[pivote] >= numero:
+            derecha = pivote
+        else:
+            izquierda = pivote
+
+    print(pivote)
+    listaIzquierda = v[0: pivote]
+    listaDerecha = v[pivote + 1: len(v)]
+
+    indiceCorteIzquierdo = buscarNumero(listaIzquierda, numero - 1, numero)
+    indiceCorteDerecho = buscarNumero(listaDerecha, numero + 1, numero) + pivote + 1
+    apariciones = (indiceCorteDerecho - indiceCorteIzquierdo) - 1
+
+    print(indiceCorteIzquierdo)
+    print(indiceCorteDerecho)
+
+    return apariciones
+
+
+def buscarNumero(lista: List[int], numero: int, numeroOriginal: int) -> int:
+    pivote = 0
+    izquierda = 0
+    derecha = len(lista) - 1
+
+    while (derecha - izquierda) > 1:
+        pivote = (izquierda + derecha + 1) // 2
+
+        if lista[pivote] >= numero:
+            derecha = pivote
+        else:
+            izquierda = pivote
+
+    if lista[izquierda] != numeroOriginal:
+        return izquierda
     else:
-        pareja = numeros[0:1]
-        grupos = (len(numeros) // 2) + 1
-        inicio = 1
-
-    resultado = encontrar(int(pareja))
-    restoAux = int(pareja) - (resultado * resultado)
-
-    for i in range(1, grupos):
-        restoAux = restoAux * 100 + int(numeros[(i*2)-inicio:((i+1)*2)-inicio])
-
-        resto = encontrarResto(restoAux, (resultado * 2))
-        resultado = resultado * 10 + resto[0]
-        restoAux -= resto[1]
-
-    return resultado
+        return derecha
 
 
-def encontrarResto(resto: int, base: int) -> Tuple[int, int]:
-    i = 1
-    resultado = 0
-    resultadoAnt = 0
-
-    while resultado < resto:
-        resultadoAnt = resultado
-        i += 1
-        resultado = ((base * 10) + i) * i
-
-    return (i-1, resultadoAnt)
+lista = [-5,-5,1,1,2,2,2,2,4,4,4,7]
+numero1 = 4
 
 
-def encontrar(n: int) -> int:
-    rdo = 1
-    i = 1
-
-    while rdo <= n:
-        i += 1
-        rdo = i * i
-
-    return i-1
-
-print(raiz_cuadrada_entera(89224))
+print(solve(lista, numero1))
